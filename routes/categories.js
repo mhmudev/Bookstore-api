@@ -6,7 +6,7 @@ const {
   deleteCategory,
   getCategories,
 } = require("../controllers/categories");
-const { upload, resizeCategoryImage } = require("../utils/multerHandler");
+const { upload, resizeImage } = require("../utils/multerHandler");
 
 const {
   createCategoryValidator,
@@ -27,7 +27,7 @@ router
   .get(getCategories)
   .post(
     upload.single("image"),
-    resizeCategoryImage,
+    resizeImage("uploads/categories", "category"),
     createCategoryValidator,
     createCategory
   );

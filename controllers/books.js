@@ -26,7 +26,7 @@ const getBooks = asyncHandler(async (req, res, next) => {
   apiFeatures
     .fields()
     .filter()
-    .search()
+    .search("Book")
     .sort()
     .getAuthorBooks(req.params.id)
     .paginate(numOfDocs);

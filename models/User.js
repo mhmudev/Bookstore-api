@@ -22,6 +22,8 @@ const UserSchema = new mongoose.Schema(
       required: [true, "Password field is required"],
       minlength: [6, "Password length is too short"],
     },
+    phone: String,
+    image: String,
     role: {
       type: String,
       enum: ["user", "admin"],
@@ -30,5 +32,10 @@ const UserSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+UserSchema.pre("init", (doc) => {
+  const imageUrl = `${process.env.BASE_URL}/users/${doc.image}`;
+  doc.image = imageUrl;
+});
 
 module.exports = mongoose.model("User", UserSchema);

@@ -23,14 +23,20 @@ class APIFeatures {
     return this;
   }
 
-  search() {
-    console.log(this.queryObject);
+  search(model) {
     if (this.queryObject.keyword) {
       let query = {};
-      query.$or = [
-        { title: { $regex: this.queryObject.keyword, $options: "i" } },
-        { description: { $regex: this.queryObject.keyword, $options: "i" } },
-      ];
+      if (model === "Book") {
+        query.$or = [
+          { title: { $regex: this.queryObject.keyword, $options: "i" } },
+          { description: { $regex: this.queryObject.keyword, $options: "i" } },
+        ];
+      } else {
+        query.$or = [
+          { name: { $regex: this.queryObject.keyword, $options: "i" } },
+          { description: { $regex: this.queryObject.keyword, $options: "i" } },
+        ];
+      }
       this.mongooseQuery = this.mongooseQuery.find(query);
     }
     return this;

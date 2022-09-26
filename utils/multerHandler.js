@@ -11,15 +11,15 @@ const multerFilter = (req, file, cb) => {
   }
 };
 
-const resizeCategoryImage = async (req, res, next) => {
+const resizeImage = (path, fileName) => async (req, res, next) => {
   try {
-    const imageFileName = `category-${Date.now()}.jpeg`;
+    const imageFileName = `${fileName}-${Date.now()}.jpeg`;
 
     await sharp(req.file.buffer)
       .resize(2000, 1333)
       .toFormat("jpeg")
       .jpeg({ quality: 95 })
-      .toFile(`uploads/categories/${imageFileName}`);
+      .toFile(`${path}/${imageFileName}`);
 
     // Save image into our db
     req.body.image = imageFileName;
@@ -67,6 +67,6 @@ const upload = multer({ storage: memoryStorage, fileFilter: multerFilter });
 
 module.exports = {
   resize,
-  resizeCategoryImage,
   upload,
+  resizeImage,
 };
