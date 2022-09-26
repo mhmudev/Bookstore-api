@@ -1,5 +1,6 @@
 const { check } = require("express-validator");
 const validatorError = require("../../middleware/validatorError");
+const Book = require("../../models/Book");
 const slugifyTitle = require("../slugify");
 
 const createAuthorValidator = [

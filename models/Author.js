@@ -14,6 +14,9 @@ const AuthorSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
+    numOfBooks: {
+      type: Number,
+    },
   },
   { timestamps: true }
 );

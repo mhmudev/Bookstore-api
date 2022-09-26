@@ -7,6 +7,8 @@ const {
   getAuthors,
 } = require("../controllers/authors");
 
+const booksRoutes = require("./books");
+
 const {
   createAuthorValidator,
   getAuthorValidator,
@@ -15,6 +17,8 @@ const {
 } = require("../utils/validators/authorValidator");
 
 const router = express.Router();
+
+router.use("/:id/books", booksRoutes);
 
 router
   .route("/:id")

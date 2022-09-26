@@ -13,7 +13,7 @@ const {
   updateBookValidator,
 } = require("../utils/validators/bookValidator");
 const { upload, resize } = require("../utils/multerHandler");
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router
   .route("/:id")

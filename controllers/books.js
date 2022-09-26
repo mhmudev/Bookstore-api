@@ -1,6 +1,7 @@
 const asyncHandler = require("../middleware/asyncHandler");
 const Book = require("../models/Book");
 const APIError = require("../utils/APIError");
+const APIFeatures = require("../utils/APIFeatures");
 
 const createBook = asyncHandler(async (req, res, next) => {
   const book = await Book.create({ ...req.body });
@@ -20,12 +21,25 @@ const deleteBook = asyncHandler(async (req, res, next) => {
 });
 
 const getBooks = asyncHandler(async (req, res, next) => {
-  const books = await Book.find({});
-  res.status(200).json(books);
+  const numOfDocs = await Book.countDocuments();
+  const apiFeatures = new APIFeatures(req.query, Book.find());
+  apiFeatures
+    .fields()
+    .filter()
+    .search()
+    .sort()
+    .getAuthorBooks(req.params.id)
+    .paginate(numOfDocs);
+
+  const { mongooseQuery, paginationResult } = apiFeatures;
+
+  const books = await mongooseQuery;
+  res.status(200).json({ paginationResult, length: books.length, books });
 });
 
 const getBook = asyncHandler(async (req, res, next) => {
   const bookId = req.params.id;
+
   const book = await Book.findById({ _id: bookId });
   if (!book) {
     return next(new APIError(`Book with id doesn't exist`, 404));

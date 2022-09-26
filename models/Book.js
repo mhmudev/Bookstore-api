@@ -88,7 +88,6 @@ const addImageUrl = (doc) => {
 
 // findOne, findAll, update => initialize before return a response
 BookSchema.pre("init", (doc) => {
-  console.log("before");
   addImageUrl(doc);
 });
 
