@@ -3,6 +3,7 @@ const validatorError = require("../../middleware/validatorError");
 const User = require("../../models/User");
 const slugifyTitle = require("../slugify");
 const slugify = require("slugify");
+const bcrypt = require("bcryptjs");
 
 const createUserValidator = [
   check("name")
@@ -51,6 +52,33 @@ const updateUserValidator = [
   validatorError,
 ];
 
+const updateUserPasswordValidator = [
+  check("id")
+    .isMongoId()
+    .withMessage("Invalid User id")
+    .custom(async (val, { req }) => {
+      const user = await User.findById(val);
+      const comparePassword = await bcrypt.compare(
+        req.body.currentPassword,
+        user.password
+      );
+      if (!comparePassword) {
+        throw new Error("Current password is wrong");
+      }
+      return true;
+    })
+    .custom((val, { req }) => {
+      if (req.body.password !== req.body.passwordConfirm) {
+        throw new Error("Password confirmation incorrect");
+      }
+      return true;
+    }),
+  check("passwordConfirm")
+    .notEmpty()
+    .withMessage("passwordConfirm field is required"),
+  validatorError,
+];
+
 const deleteUserValidator = [
   check("id").isMongoId().withMessage("Invalid User id"),
   validatorError,
@@ -61,4 +89,5 @@ module.exports = {
   createUserValidator,
   deleteUserValidator,
   getUserValidator,
+  updateUserPasswordValidator,
 };
