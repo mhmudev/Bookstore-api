@@ -5,6 +5,7 @@ const {
   updateUser,
   deleteUser,
   getUsers,
+  updateUserPassword,
 } = require("../controllers/users");
 const { upload, resizeImage } = require("../utils/multerHandler");
 
@@ -16,6 +17,8 @@ const {
 } = require("../utils/validators/userValidator");
 
 const router = express.Router();
+
+router.route("/updatePassword/:id").put(updateUserPassword);
 
 router
   .route("/:id")

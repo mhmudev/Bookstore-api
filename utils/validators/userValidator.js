@@ -2,6 +2,7 @@ const { check } = require("express-validator");
 const validatorError = require("../../middleware/validatorError");
 const User = require("../../models/User");
 const slugifyTitle = require("../slugify");
+const slugify = require("slugify");
 
 const createUserValidator = [
   check("name")
@@ -43,7 +44,10 @@ const getUserValidator = [
 ];
 
 const updateUserValidator = [
-  check("id").isMongoId().withMessage("Invalid User id"),
+  check("id")
+    .isMongoId()
+    .withMessage("Invalid User id")
+    .custom((val, { req }) => (req.body.slug = slugify(req.body.name))),
   validatorError,
 ];
 

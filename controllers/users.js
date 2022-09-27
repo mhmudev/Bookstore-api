@@ -4,6 +4,7 @@ const asyncHandler = require("../middleware/asyncHandler");
 const User = require("../models/User");
 const APIError = require("../utils/APIError");
 const APIFeatures = require("../utils/APIFeatures");
+const bcrypt = require("bcryptjs");
 
 const createUser = asyncHandler(async (req, res, next) => {
   const user = await User.create({ ...req.body });
@@ -11,8 +12,24 @@ const createUser = asyncHandler(async (req, res, next) => {
 });
 
 const updateUser = asyncHandler(async (req, res, next) => {
+  const { name, phone, email, image, role, slug } = req.body;
+
   const userId = req.params.id;
-  const user = await User.findByIdAndUpdate({ _id: userId }, { ...req.body });
+  const user = await User.findByIdAndUpdate(
+    { _id: userId },
+    { name, phone, email, image, role, slug },
+    { new: true }
+  );
+  res.status(200).json(user);
+});
+
+const updateUserPassword = asyncHandler(async (req, res, next) => {
+  const userId = req.params.id;
+  const user = await User.findByIdAndUpdate(
+    { _id: userId },
+    { password: await bcrypt.hash(req.body.password, 12) },
+    { new: true }
+  );
   res.status(200).json(user);
 });
 
@@ -50,4 +67,11 @@ const getUser = asyncHandler(async (req, res, next) => {
   res.status(200).json(user);
 });
 
-module.exports = { createUser, updateUser, deleteUser, getUser, getUsers };
+module.exports = {
+  createUser,
+  updateUser,
+  deleteUser,
+  getUser,
+  getUsers,
+  updateUserPassword,
+};
