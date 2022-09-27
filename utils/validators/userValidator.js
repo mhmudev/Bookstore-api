@@ -49,6 +49,14 @@ const updateUserValidator = [
     .isMongoId()
     .withMessage("Invalid User id")
     .custom((val, { req }) => (req.body.slug = slugify(req.body.name))),
+  check("phone")
+    .isMobilePhone("ar-EG")
+    .withMessage("Please provide a vaild phone number"),
+  check("email")
+    .notEmpty()
+    .withMessage("Email field is required")
+    .isEmail()
+    .withMessage("Please provide a valid email"),
   validatorError,
 ];
 

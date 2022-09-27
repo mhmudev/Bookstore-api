@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -30,6 +31,10 @@ const UserSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+    active: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );
@@ -38,6 +43,15 @@ const UserSchema = new mongoose.Schema(
 //   const imageUrl = `${process.env.BASE_URL}/users/${doc.image}`;
 //   doc.image = imageUrl;
 // });
+
+UserSchema.methods.createToken = (payload) =>
+  jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRATION,
+  });
+
+UserSchema.methods.isValidPassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
 
 UserSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 12);
