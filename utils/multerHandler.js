@@ -15,14 +15,16 @@ const resizeImage = (path, fileName) => async (req, res, next) => {
   try {
     const imageFileName = `${fileName}-${Date.now()}.jpeg`;
 
-    await sharp(req.file.buffer)
-      .resize(2000, 1333)
-      .toFormat("jpeg")
-      .jpeg({ quality: 95 })
-      .toFile(`${path}/${imageFileName}`);
+    if (req.file) {
+      await sharp(req.file.buffer)
+        .resize(2000, 1333)
+        .toFormat("jpeg")
+        .jpeg({ quality: 95 })
+        .toFile(`${path}/${imageFileName}`);
 
-    // Save image into our db
-    req.body.image = imageFileName;
+      // Save image into our db
+      req.body.image = imageFileName;
+    }
     next();
   } catch (error) {
     next(error);
@@ -30,37 +32,39 @@ const resizeImage = (path, fileName) => async (req, res, next) => {
 };
 
 const resize = async (req, res, next) => {
-  if (req.files.coverImage) {
-    const coverImageFileName = `book-${Date.now()}-cover.jpeg`;
+  if (req.files) {
+    if (req.files.coverImage) {
+      const coverImageFileName = `book-${Date.now()}-cover.jpeg`;
 
-    await sharp(req.files.coverImage[0].buffer)
-      .resize(2000, 1333)
-      .toFormat("jpeg")
-      .jpeg({ quality: 95 })
-      .toFile(`uploads/books/${coverImageFileName}`);
+      await sharp(req.files.coverImage[0].buffer)
+        .resize(2000, 1333)
+        .toFormat("jpeg")
+        .jpeg({ quality: 95 })
+        .toFile(`uploads/books/${coverImageFileName}`);
 
-    // Save image into our db
-    req.body.coverImage = coverImageFileName;
+      // Save image into our db
+      req.body.coverImage = coverImageFileName;
+    }
+    //2- Image processing for images
+    if (req.files.images) {
+      req.body.images = [];
+      await Promise.all(
+        req.files.images.map(async (img, index) => {
+          const imageName = `book-${Date.now()}-${index + 1}.jpeg`;
+
+          await sharp(img.buffer)
+            .resize(2000, 1333)
+            .toFormat("jpeg")
+            .jpeg({ quality: 95 })
+            .toFile(`uploads/books/${imageName}`);
+
+          // Save image into our db
+          req.body.images.push(imageName);
+        })
+      );
+    }
   }
-  //2- Image processing for images
-  if (req.files.images) {
-    req.body.images = [];
-    await Promise.all(
-      req.files.images.map(async (img, index) => {
-        const imageName = `book-${Date.now()}-${index + 1}.jpeg`;
-
-        await sharp(img.buffer)
-          .resize(2000, 1333)
-          .toFormat("jpeg")
-          .jpeg({ quality: 95 })
-          .toFile(`uploads/books/${imageName}`);
-
-        // Save image into our db
-        req.body.images.push(imageName);
-      })
-    );
-    next();
-  }
+  next();
 };
 
 const upload = multer({ storage: memoryStorage, fileFilter: multerFilter });

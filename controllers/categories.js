@@ -3,6 +3,7 @@ const Category = require("../models/Category");
 const APIError = require("../utils/APIError");
 
 const createCategory = asyncHandler(async (req, res, next) => {
+  console.log(req.cookies.token);
   const category = await Category.create(req.body);
   res.status(201).json(category);
 });

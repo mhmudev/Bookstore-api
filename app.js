@@ -1,5 +1,7 @@
 const express = require("express");
 require("dotenv").config();
+var cookieParser = require("cookie-parser");
+
 const path = require("path");
 const booksRouter = require("./routes/books");
 const categoriesRouter = require("./routes/categories");
@@ -11,6 +13,7 @@ const connectToDb = require("./utils/dbConnect");
 
 const app = express();
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
 

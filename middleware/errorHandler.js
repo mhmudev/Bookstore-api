@@ -11,6 +11,14 @@ const errorHandler = (err, req, res, next) => {
     customError.statusCode = 400;
   }
 
+  if (err.name === "JsonWebTokenError") {
+    customError.msg = `Invalid token, try to login again`;
+    customError.statusCode = 401;
+  }
+  if (err.name === "TokenExpiredError") {
+    customError.msg = `Token expired, try to login again`;
+    customError.statusCode = 401;
+  }
   return res
     .status(customError.statusCode)
     .json({ msg: customError.msg, status: customError.status });

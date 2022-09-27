@@ -20,6 +20,7 @@ const updateUser = asyncHandler(async (req, res, next) => {
     { name, phone, email, image, role, slug },
     { new: true }
   );
+
   res.status(200).json(user);
 });
 
@@ -30,6 +31,8 @@ const updateUserPassword = asyncHandler(async (req, res, next) => {
     { password: await bcrypt.hash(req.body.password, 12) },
     { new: true }
   );
+  const token = user.createToken({ userId: user._id });
+  res.cookie("token", token, { httpOnly: true });
   res.status(200).json(user);
 });
 
