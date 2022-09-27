@@ -1,3 +1,5 @@
+const fs = require("fs/promises");
+const path = require("path");
 const asyncHandler = require("../middleware/asyncHandler");
 const User = require("../models/User");
 const APIError = require("../utils/APIError");
@@ -17,6 +19,7 @@ const updateUser = asyncHandler(async (req, res, next) => {
 const deleteUser = asyncHandler(async (req, res, next) => {
   const userId = req.params.id;
   const user = await User.findByIdAndDelete({ _id: userId });
+  await fs.unlink(path.join(__dirname, `../uploads/users/${user.image}`));
   res.status(200).json(user);
 });
 

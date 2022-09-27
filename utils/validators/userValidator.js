@@ -21,7 +21,19 @@ const createUserValidator = [
     .notEmpty()
     .withMessage("Password field is required")
     .isLength({ min: 6 })
-    .withMessage("Password length is too short"),
+    .withMessage("Password length is too short")
+    .custom((password, { req }) => {
+      if (password !== req.body.passwordConfirm) {
+        throw new Error("Password confirmation incorrect");
+      }
+      return true;
+    }),
+  check("passwordConfirm")
+    .notEmpty()
+    .withMessage("passwordConfirm field is required"),
+  check("phone")
+    .isMobilePhone("ar-EG")
+    .withMessage("Please provide a vaild phone number"),
 
   validatorError,
 ];

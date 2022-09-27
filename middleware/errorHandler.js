@@ -4,6 +4,13 @@ const errorHandler = (err, req, res, next) => {
     statusCode: err.statusCode || 500,
     status: err.status || "Fail",
   };
+
+  // Duplicate
+  if (err.code && err.code == 11000) {
+    customError.msg = `Email already exists ${err.keyValue.email}`;
+    customError.statusCode = 400;
+  }
+
   return res
     .status(customError.statusCode)
     .json({ msg: customError.msg, status: customError.status });

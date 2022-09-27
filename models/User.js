@@ -33,9 +33,9 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-UserSchema.pre("init", (doc) => {
-  const imageUrl = `${process.env.BASE_URL}/users/${doc.image}`;
-  doc.image = imageUrl;
-});
+// UserSchema.pre("init", (doc) => {
+//   const imageUrl = `${process.env.BASE_URL}/users/${doc.image}`;
+//   doc.image = imageUrl;
+// });
 
 module.exports = mongoose.model("User", UserSchema);
