@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -37,5 +38,10 @@ const UserSchema = new mongoose.Schema(
 //   const imageUrl = `${process.env.BASE_URL}/users/${doc.image}`;
 //   doc.image = imageUrl;
 // });
+
+UserSchema.pre("save", async function (next) {
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
 
 module.exports = mongoose.model("User", UserSchema);
