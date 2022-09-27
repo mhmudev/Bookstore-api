@@ -58,6 +58,9 @@ const updateUserPasswordValidator = [
     .withMessage("Invalid User id")
     .custom(async (val, { req }) => {
       const user = await User.findById(val);
+      if (!user) {
+        throw new Error(`no user with id ${val}`);
+      }
       const comparePassword = await bcrypt.compare(
         req.body.currentPassword,
         user.password
