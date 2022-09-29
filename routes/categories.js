@@ -21,13 +21,13 @@ const router = express.Router();
 router
   .route("/:id")
   .get(getCategoryValidator, getCategory)
-  .put(updateCategoryValidator, updateCategory)
-  .delete(deleteCategoryValidator, deleteCategory);
+  .put(protect("admin"), updateCategoryValidator, updateCategory)
+  .delete(protect("admin"), deleteCategoryValidator, deleteCategory);
 router
   .route("/")
   .get(getCategories)
   .post(
-    protect("user"),
+    protect("admin"),
     upload.single("image"),
     resizeImage("uploads/categories", "category"),
     createCategoryValidator,

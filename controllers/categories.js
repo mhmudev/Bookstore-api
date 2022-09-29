@@ -25,6 +25,7 @@ const deleteCategory = asyncHandler(async (req, res, next) => {
 
 const getCategories = asyncHandler(async (req, res, next) => {
   const categories = await Category.find({});
+  console.log(req.session.token);
   res.status(200).json(categories);
 });
 

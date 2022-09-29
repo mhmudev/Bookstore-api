@@ -13,18 +13,22 @@ const {
   updateBookValidator,
 } = require("../utils/validators/bookValidator");
 const { upload, resize } = require("../utils/multerHandler");
+const { protect } = require("../controllers/auth");
+
 const router = express.Router({ mergeParams: true });
 
 router
   .route("/:id")
   .get(getBookValidator, getBook)
-  .put(updateBookValidator, updateBook)
-  .delete(deleteBookValidator, deleteBook);
+  .put(protect("admin"), updateBookValidator, updateBook)
+  .delete(protect("admin"), deleteBookValidator, deleteBook);
 
 router
   .route("/")
   .get(getBooks)
   .post(
+    protect("admin"),
+    protect("admin"),
     upload.fields([
       { name: "coverImage", maxCount: 1 },
       { name: "images", maxCount: 4 },

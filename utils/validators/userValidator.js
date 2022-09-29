@@ -57,6 +57,7 @@ const updateUserValidator = [
     .withMessage("Email field is required")
     .isEmail()
     .withMessage("Please provide a valid email"),
+
   validatorError,
 ];
 

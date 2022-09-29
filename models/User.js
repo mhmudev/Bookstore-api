@@ -31,6 +31,9 @@ const UserSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+    resetCode: String,
+    resetCodeExpiration: Date,
+    isResetCodeVerified: Boolean,
     active: {
       type: Boolean,
       default: true,

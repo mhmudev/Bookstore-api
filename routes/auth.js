@@ -1,5 +1,11 @@
 const express = require("express");
-const { signup, login } = require("../controllers/auth");
+const {
+  signup,
+  login,
+  forgetPassword,
+  verifyResetCode,
+  resetPassword,
+} = require("../controllers/auth");
 const { upload, resizeImage } = require("../utils/multerHandler");
 
 const {
@@ -9,16 +15,10 @@ const {
 
 const router = express.Router();
 
-// router
-//   .route("/updatePassword/:id")
-//   .put(updateUserPasswordValidator, updateUserPassword);
-
-// router
-//   .route("/:id")
-//   .get(getUserValidator, getUser)
-//   .put(updateUserValidator, updateUser)
-//   .delete(deleteUserValidator, deleteUser);
 router.route("/signup").post(signupValidator, signup);
 router.route("/login").post(loginValidator, login);
+router.route("/forgetPassword").post(forgetPassword);
+router.route("/verifyResetCode").post(verifyResetCode);
+router.route("/resetPassword").put(resetPassword);
 
 module.exports = router;

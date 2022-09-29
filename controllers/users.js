@@ -1,5 +1,6 @@
 const fs = require("fs/promises");
 const path = require("path");
+const jwt = require("jsonwebtoken");
 const asyncHandler = require("../middleware/asyncHandler");
 const User = require("../models/User");
 const APIError = require("../utils/APIError");
@@ -32,7 +33,8 @@ const updateUserPassword = asyncHandler(async (req, res, next) => {
     { new: true }
   );
   const token = user.createToken({ userId: user._id });
-  res.cookie("token", token, { httpOnly: true });
+  // res.cookie("token", token, { httpOnly: true });
+  req.session.token = token;
   res.status(200).json(user);
 });
 
@@ -54,7 +56,7 @@ const getUsers = asyncHandler(async (req, res, next) => {
     .getAuthorBooks(req.params.id)
     .paginate(numOfDocs);
 
-  const { mongooseQuery, paginationResult } = apiFeatures;
+  const { mongooseQuery, paginationResult } = apiFeat;
 
   const users = await mongooseQuery;
   res.status(200).json({ paginationResult, length: users.length, users });
@@ -70,6 +72,53 @@ const getUser = asyncHandler(async (req, res, next) => {
   res.status(200).json(user);
 });
 
+const getLoggedUserData = asyncHandler(async (req, res, next) => {
+  const user = jwt.verify(req.session.token, process.env.JWT_SECRET);
+  req.params.id = user.userId;
+  next();
+});
+
+const changeLoggedUserPassword = asyncHandler(async (req, res, next) => {
+  const user = jwt.verify(req.session.token, process.env.JWT_SECRET);
+  req.params.id = user.userId;
+  next();
+});
+
+const updateLoggedUserData = asyncHandler(async (req, res, next) => {
+  const verifiedUser = jwt.verify(req.session.token, process.env.JWT_SECRET);
+  const { name, phone, email, slug } = req.body;
+
+  const userId = verifiedUser.userId;
+  const user = await User.findByIdAndUpdate(
+    { _id: userId },
+    { name, phone, email, slug },
+    { new: true }
+  );
+
+  res.status(200).json(user);
+});
+
+const deactivateLoggedUserData = asyncHandler(async (req, res, next) => {
+  const verifiedUser = jwt.verify(req.session.token, process.env.JWT_SECRET);
+
+  const userId = verifiedUser.userId;
+  const user = await User.findByIdAndUpdate(
+    { _id: userId },
+    { active: false },
+    { new: true }
+  );
+
+  res.status(200).json({ user, msg: "User deactivated" });
+});
+
+const logOutLoggedUser = asyncHandler(async (req, res, next) => {
+  if (req.session.token) {
+    req.session.destroy();
+  }
+
+  res.status(200).json({ msg: "User LoggedOut" });
+});
+
 module.exports = {
   createUser,
   updateUser,
@@ -77,4 +126,9 @@ module.exports = {
   getUser,
   getUsers,
   updateUserPassword,
+  getLoggedUserData,
+  changeLoggedUserPassword,
+  updateLoggedUserData,
+  deactivateLoggedUserData,
+  logOutLoggedUser,
 };
