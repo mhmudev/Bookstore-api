@@ -56,7 +56,7 @@ const getUsers = asyncHandler(async (req, res, next) => {
     .getAuthorBooks(req.params.id)
     .paginate(numOfDocs);
 
-  const { mongooseQuery, paginationResult } = apiFeat;
+  const { mongooseQuery, paginationResult } = apiFeatures;
 
   const users = await mongooseQuery;
   res.status(200).json({ paginationResult, length: users.length, users });

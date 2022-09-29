@@ -10,6 +10,7 @@ const categoriesRouter = require("./routes/categories");
 const authorsRouter = require("./routes/authors");
 const usersRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
+const reviewsRouter = require("./routes/reviews");
 const errorHandler = require("./middleware/errorHandler");
 const connectToDb = require("./utils/dbConnect");
 
@@ -37,6 +38,7 @@ app.use("/api/v1/categories", categoriesRouter);
 app.use("/api/v1/authors", authorsRouter);
 app.use("/api/v1/users", usersRouter);
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/reviews", reviewsRouter);
 
 app.use(errorHandler);
 
