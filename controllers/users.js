@@ -111,14 +111,6 @@ const deactivateLoggedUserData = asyncHandler(async (req, res, next) => {
   res.status(200).json({ user, msg: "User deactivated" });
 });
 
-const logOutLoggedUser = asyncHandler(async (req, res, next) => {
-  if (req.session.token) {
-    req.session.destroy();
-  }
-
-  res.status(200).json({ msg: "User LoggedOut" });
-});
-
 module.exports = {
   createUser,
   updateUser,
@@ -130,5 +122,4 @@ module.exports = {
   changeLoggedUserPassword,
   updateLoggedUserData,
   deactivateLoggedUserData,
-  logOutLoggedUser,
 };

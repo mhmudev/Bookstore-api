@@ -145,6 +145,16 @@ const resetPassword = asyncHandler(async (req, res, next) => {
     .json({ msg: "Password changed successfully", status: "Success" });
 });
 
+const logout = asyncHandler(async (req, res, next) => {
+  if (req.session.token) {
+    req.session.destroy();
+  } else {
+    return next(new APIError("You have to login first", 403));
+  }
+
+  res.status(200).json({ msg: "User LoggedOut", status: "Success" });
+});
+
 module.exports = {
   signup,
   login,
@@ -152,4 +162,5 @@ module.exports = {
   forgetPassword,
   verifyResetCode,
   resetPassword,
+  logout,
 };

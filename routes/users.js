@@ -10,7 +10,6 @@ const {
   changeLoggedUserPassword,
   updateLoggedUserData,
   deactivateLoggedUserData,
-  logOutLoggedUser,
 } = require("../controllers/users");
 const { upload, resizeImage } = require("../utils/multerHandler");
 
@@ -26,7 +25,6 @@ const { protect } = require("../controllers/auth");
 const router = express.Router();
 
 router.get("/profile", protect("user", "admin"), getLoggedUserData, getUser);
-router.get("/logout", protect("user", "admin"), logOutLoggedUser);
 
 router.delete(
   "/deactivate",
