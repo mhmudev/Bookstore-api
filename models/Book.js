@@ -62,8 +62,14 @@ const BookSchema = new mongoose.Schema(
     },
     images: [String],
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+BookSchema.virtual("reviews", {
+  ref: "Review",
+  foreignField: "book",
+  localField: "_id",
+});
 
 BookSchema.pre(/^find/, function (next) {
   this.populate({

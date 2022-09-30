@@ -40,7 +40,9 @@ const getBooks = asyncHandler(async (req, res, next) => {
 const getBook = asyncHandler(async (req, res, next) => {
   const bookId = req.params.id;
 
-  const book = await Book.findById({ _id: bookId });
+  let query = Book.findById({ _id: bookId });
+  query = query.populate("reviews");
+  const book = await query;
   if (!book) {
     return next(new APIError(`Book with id doesn't exist`, 404));
   }

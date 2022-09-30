@@ -2,6 +2,7 @@ const { check } = require("express-validator");
 const slugifyTitle = require("../slugify");
 const validatorError = require("../../middleware/validatorError");
 const Review = require("../../models/Review");
+const Book = require("../../models/Book");
 const jwt = require("jsonwebtoken");
 
 const createReviewValidator = [
@@ -15,6 +16,10 @@ const createReviewValidator = [
     .isMongoId()
     .withMessage("Invalid book id")
     .custom(async (val, { req }) => {
+      const book = await Book.findById(val);
+      if (!book) {
+        throw new Error(`No book found with id ${val}`);
+      }
       const user = jwt.verify(req.session.token, process.env.JWT_SECRET);
       req.body.user = user.userId;
       const review = await Review.findOne({ book: val, user: req.body.user });
@@ -55,7 +60,7 @@ const deleteReviewValidator = [
       if (user.role === "user") {
         const review = await Review.findOne({ _id: val, user: user.userId });
         if (!review) {
-          throw new Error("You can't update this review");
+          throw new Error("You can't delete this review");
         }
       }
       return true;
