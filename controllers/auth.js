@@ -13,7 +13,7 @@ const signup = asyncHandler(async (req, res, next) => {
     phone: req.body.phone,
   });
 
-  const token = user.createToken({ userId: user._id });
+  const token = user.createToken({ userId: user._id, role: user.role });
   res.cookie("token", token, { httpOnly: true });
   req.session.token = token;
   res.status(201).json({ user, token });
@@ -31,7 +31,7 @@ const login = asyncHandler(async (req, res, next) => {
     return next(new APIError("Invalid credentials", 401));
   }
 
-  const token = user.createToken({ userId: user._id });
+  const token = user.createToken({ userId: user._id, role: user.role });
 
   // res.cookie("token", token, { httpOnly: true });
 
@@ -136,7 +136,7 @@ const resetPassword = asyncHandler(async (req, res, next) => {
   user.resetCodeExpiration = undefined;
   await user.save();
 
-  const token = user.createToken({ userId: user._id });
+  const token = user.createToken({ userId: user._id, role: user.role });
   // res.cookie("token", token, { httpOnly: true });
   req.session.token = token;
 

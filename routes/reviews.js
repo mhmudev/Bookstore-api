@@ -6,22 +6,25 @@ const {
   getReview,
   getReviews,
 } = require("../controllers/reviews");
-// const {
-//   createBookValidator,
-//   getBookValidator,
-//   deleteBookValidator,
-//   updateBookValidator,
-// } = require("../utils/validators/bookValidator");
+const {
+  createReviewValidator,
+  updateReviewValidator,
+  getReviewValidator,
+  deleteReviewValidator,
+} = require("../utils/validators/reviewValidator");
 const { protect } = require("../controllers/auth");
 
 const router = express.Router();
 
 router
   .route("/:id")
-  .get(getReview)
-  .put(protect("admin", "user"), updateReview)
-  .delete(protect("admin", "user"), deleteReview);
+  .get(getReviewValidator, getReview)
+  .put(updateReviewValidator, protect("admin", "user"), updateReview)
+  .delete(deleteReviewValidator, protect("admin", "user"), deleteReview);
 
-router.route("/").get(getReviews).post(protect("admin", "user"), createReview);
+router
+  .route("/")
+  .get(getReviews)
+  .post(protect("admin", "user"), createReviewValidator, createReview);
 
 module.exports = router;
