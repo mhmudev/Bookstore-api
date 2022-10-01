@@ -41,4 +41,22 @@ const removeBookFromWishlist = asyncHandler(async (req, res, next) => {
   });
 });
 
-module.exports = { addBookToWishlist, removeBookFromWishlist };
+const getLoggedUserWishlist = asyncHandler(async (req, res, next) => {
+  const user = jwt.verify(req.session.token, process.env.JWT_SECRET);
+  if (!user) {
+    return new APIError("You have to login first", 403);
+  }
+  const userWishlist = await User.findById(user.userId)
+    .select("wishlist -_id")
+    .populate("wishlist");
+  res.status(200).json({
+    status: "Success",
+    data: userWishlist,
+  });
+});
+
+module.exports = {
+  addBookToWishlist,
+  removeBookFromWishlist,
+  getLoggedUserWishlist,
+};

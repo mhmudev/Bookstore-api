@@ -27,7 +27,7 @@ const UserSchema = new mongoose.Schema(
     wishlist: [
       {
         type: mongoose.Types.ObjectId,
-        ref: "Product",
+        ref: "Book",
       },
     ],
     phone: String,
