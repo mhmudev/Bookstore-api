@@ -24,6 +24,12 @@ const UserSchema = new mongoose.Schema(
       required: [true, "Password field is required"],
       minlength: [6, "Password length is too short"],
     },
+    wishlist: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
     phone: String,
     image: String,
     role: {
