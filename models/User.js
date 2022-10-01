@@ -30,6 +30,15 @@ const UserSchema = new mongoose.Schema(
         ref: "Book",
       },
     ],
+    addresses: [
+      {
+        id: mongoose.Schema.Types.ObjectId,
+        alias: String,
+        phone: String,
+        postalcode: String,
+        details: String,
+      },
+    ],
     phone: String,
     image: String,
     role: {

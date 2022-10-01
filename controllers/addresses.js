@@ -3,60 +3,60 @@ const asyncHandler = require("../middleware/asyncHandler");
 const APIError = require("../utils/APIError");
 const jwt = require("jsonwebtoken");
 
-const addBookToWishlist = asyncHandler(async (req, res, next) => {
+const addAddress = asyncHandler(async (req, res, next) => {
   const user = jwt.verify(req.session.token, process.env.JWT_SECRET);
   if (!user) {
     return new APIError("You have to login first", 403);
   }
-  const userWishlist = await User.findByIdAndUpdate(
+  const userAddresses = await User.findByIdAndUpdate(
     user.userId,
     {
-      $addToSet: { wishlist: req.body.bookId },
+      $addToSet: { addresses: req.body },
     },
     { new: true }
   );
   res.status(200).json({
     status: "Success",
-    msg: "Book added successfully to your wishlist",
-    data: userWishlist.wishlist,
+    msg: "Address added successfully to your addresses",
+    data: userAddresses.addresses,
   });
 });
 
-const removeBookFromWishlist = asyncHandler(async (req, res, next) => {
+const removeAddress = asyncHandler(async (req, res, next) => {
   const user = jwt.verify(req.session.token, process.env.JWT_SECRET);
   if (!user) {
     return new APIError("You have to login first", 403);
   }
-  const userWishlist = await User.findByIdAndUpdate(
+  const userAddresses = await User.findByIdAndUpdate(
     user.userId,
     {
-      $pull: { wishlist: req.params.bookId },
+      $pull: { addresses: req.params },
     },
     { new: true }
   );
   res.status(200).json({
     status: "Success",
-    msg: "Book removed successfully to your wishlist",
-    data: userWishlist.wishlist,
+    msg: "Address removed successfully to your addresses",
+    data: userAddresses.addresses,
   });
 });
 
-const getLoggedUserWishlist = asyncHandler(async (req, res, next) => {
+const getLoggedUserAddresses = asyncHandler(async (req, res, next) => {
   const user = jwt.verify(req.session.token, process.env.JWT_SECRET);
   if (!user) {
     return new APIError("You have to login first", 403);
   }
-  const userWishlist = await User.findById(user.userId)
-    .select("wishlist -_id")
-    .populate("wishlist");
+  const userAddresses = await User.findById(user.userId)
+    .select("addresses -_id")
+    .populate("addresses");
   res.status(200).json({
     status: "Success",
-    data: userWishlist,
+    data: userAddresses,
   });
 });
 
 module.exports = {
-  addBookToWishlist,
-  removeBookFromWishlist,
-  getLoggedUserWishlist,
+  addAddress,
+  removeAddress,
+  getLoggedUserAddresses,
 };
