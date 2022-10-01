@@ -5,16 +5,9 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 
 const path = require("path");
-const booksRouter = require("./routes/books");
-const categoriesRouter = require("./routes/categories");
-const authorsRouter = require("./routes/authors");
-const usersRouter = require("./routes/users");
-const authRouter = require("./routes/auth");
-const reviewsRouter = require("./routes/reviews");
-const wishlistRouter = require("./routes/wishlist");
-const addressesRouter = require("./routes/addresses");
 const errorHandler = require("./middleware/errorHandler");
 const connectToDb = require("./utils/dbConnect");
+const mountRoutes = require("./routes");
 
 const app = express();
 
@@ -35,14 +28,7 @@ app.use(
   })
 );
 
-app.use("/api/v1/books", booksRouter);
-app.use("/api/v1/categories", categoriesRouter);
-app.use("/api/v1/authors", authorsRouter);
-app.use("/api/v1/users", usersRouter);
-app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/reviews", reviewsRouter);
-app.use("/api/v1/wishlist", wishlistRouter);
-app.use("/api/v1/addresses", addressesRouter);
+mountRoutes(app);
 
 app.use(errorHandler);
 
