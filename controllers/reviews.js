@@ -21,6 +21,8 @@ const updateReview = asyncHandler(async (req, res, next) => {
     { ...req.body },
     { new: true }
   );
+  // trigger save event when update to update ratings average
+  review.save();
   res.status(200).json(review);
 });
 
@@ -28,6 +30,8 @@ const deleteReview = asyncHandler(async (req, res, next) => {
   console.log(req.params.id);
   const reviewId = req.params.id;
   const review = await Review.findByIdAndDelete({ _id: reviewId });
+  // trigger remove event when update to update ratings average
+  review.remove();
   res.status(200).json(review);
 });
 
@@ -40,7 +44,7 @@ const getReviews = asyncHandler(async (req, res, next) => {
     .filter()
     .search("Review")
     .sort()
-    .getNestedRouteThing({ book: req.params.id })
+    .getNestedRouteThing(req.params.id ? { book: req.params.id } : {})
     .paginate(numOfDocs);
 
   const { mongooseQuery, paginationResult } = apiFeatures;
