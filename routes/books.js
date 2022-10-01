@@ -14,8 +14,11 @@ const {
 } = require("../utils/validators/bookValidator");
 const { upload, resize } = require("../utils/multerHandler");
 const { protect } = require("../controllers/auth");
+const reviewsRoute = require("./reviews");
 
 const router = express.Router({ mergeParams: true });
+
+router.use("/:id/reviews", reviewsRoute);
 
 router
   .route("/:id")

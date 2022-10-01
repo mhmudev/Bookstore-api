@@ -4,9 +4,9 @@ class APIFeatures {
     this.mongooseQuery = mongooseQuery;
   }
 
-  getAuthorBooks(id) {
-    if (id) {
-      this.mongooseQuery = this.mongooseQuery.find({ author: id });
+  getNestedRouteThing(query) {
+    if (query) {
+      this.mongooseQuery = this.mongooseQuery.find(query);
     }
     return this;
   }
@@ -60,7 +60,7 @@ class APIFeatures {
 
   paginate(numOfDocs) {
     const page = this.queryObject.page || 1;
-    const limit = this.queryObject.limit || 0;
+    const limit = this.queryObject.limit || 10;
     const skip = (page - 1) * limit;
     const pagination = {};
     pagination.limit = +limit;

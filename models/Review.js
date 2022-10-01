@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const Book = require("./Book");
 
 const ReviewSchema = new mongoose.Schema(
   {
@@ -32,6 +33,36 @@ ReviewSchema.pre(/^find/, function (next) {
     select: "name",
   });
   next();
+});
+
+ReviewSchema.statics.avgAndQuantityRatings = async function (bookId) {
+  const result = await this.aggregate([
+    {
+      $match: { book: bookId },
+    },
+    {
+      $group: {
+        _id: "book",
+        avgRating: { $avg: "$rating" },
+        ratingsQuantity: { $sum: 1 },
+      },
+    },
+  ]);
+  if (result.length > 0) {
+    await Book.findByIdAndUpdate(bookId, {
+      ratingsAverage: result[0].avgRating,
+      ratingsQuantity: result[0].ratingsQuantity,
+    });
+  } else {
+    await Book.findByIdAndUpdate(bookId, {
+      ratingsAverage: 0,
+      ratingsQuantity: 0,
+    });
+  }
+};
+
+ReviewSchema.post("save", async function () {
+  await this.constructor.avgAndQuantityRatings(this.book);
 });
 
 module.exports = mongoose.model("Review", ReviewSchema);

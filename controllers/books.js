@@ -28,7 +28,7 @@ const getBooks = asyncHandler(async (req, res, next) => {
     .filter()
     .search("Book")
     .sort()
-    .getAuthorBooks(req.params.id)
+    .getNestedRouteThing({ author: req.params.id })
     .paginate(numOfDocs);
 
   const { mongooseQuery, paginationResult } = apiFeatures;
