@@ -1,21 +1,20 @@
 const express = require("express");
+const path = require("path");
 require("dotenv").config();
 var cookieParser = require("cookie-parser");
 const session = require("express-session");
-const MongoStore = require("connect-mongo");
 
-const path = require("path");
 const errorHandler = require("./middleware/errorHandler");
 const connectToDb = require("./utils/dbConnect");
 const mountRoutes = require("./routes");
 
 const app = express();
-
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
-const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 
+const MongoStore = require("connect-mongo");
+const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -29,7 +28,6 @@ app.use(
 );
 
 mountRoutes(app);
-
 app.use(errorHandler);
 
 const start = async () => {
