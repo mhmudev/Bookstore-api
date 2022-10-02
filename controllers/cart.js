@@ -3,6 +3,7 @@ const User = require("../models/User");
 const Book = require("../models/Book");
 const Cart = require("../models/Cart");
 const asyncHandler = require("../middleware/asyncHandler");
+const APIError = require("../utils/APIError");
 
 const addToCart = asyncHandler(async (req, res, next) => {
   const { color, bookId } = req.body;
@@ -39,4 +40,13 @@ const addToCart = asyncHandler(async (req, res, next) => {
   res.status(200).json({ status: "Success", data: cart });
 });
 
-module.exports = { addToCart };
+const getUserCart = asyncHandler(async (req, res, next) => {
+  const verifyUser = jwt.verify(req.session.token, process.env.JWT_SECRET);
+  let cart = await Cart.findOne({ user: verifyUser.userId });
+  if (!cart) {
+    return new APIError("No cart for this user", 404);
+  }
+  res.status(200).json({ cartLength: cart.cartItems.length, data: cart });
+});
+
+module.exports = { addToCart, getUserCart };
