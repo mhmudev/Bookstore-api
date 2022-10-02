@@ -49,4 +49,21 @@ const getUserCart = asyncHandler(async (req, res, next) => {
   res.status(200).json({ cartLength: cart.cartItems.length, data: cart });
 });
 
-module.exports = { addToCart, getUserCart };
+const removeCartItem = asyncHandler(async (req, res, next) => {
+  const verifyUser = jwt.verify(req.session.token, process.env.JWT_SECRET);
+  let cart = await Cart.findOneAndUpdate(
+    { user: verifyUser.userId },
+    {
+      $pull: { cartItems: { _id: req.params.itemId } },
+    },
+    { new: true }
+  );
+
+  let totalPrice = 0;
+  cart.cartItems.forEach((item) => (totalPrice += item.price * item.quantity));
+  cart.totalCartPrice = totalPrice;
+  await cart.save();
+  res.status(200).json({ cartLength: cart.cartItems.length, data: cart });
+});
+
+module.exports = { addToCart, getUserCart, removeCartItem };
