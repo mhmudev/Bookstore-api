@@ -5,11 +5,14 @@ const {
   removeCart,
   removeCartItem,
   updateCartItemsQuantity,
+  applyCouponToCart,
 } = require("../controllers/cart");
 
 const { protect } = require("../controllers/auth");
 
 const router = express.Router();
+
+router.route("/applyCoupon").put(applyCouponToCart);
 
 router
   .route("/")

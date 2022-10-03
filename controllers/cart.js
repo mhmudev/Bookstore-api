@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const Coupon = require("../models/Coupon");
 const Book = require("../models/Book");
 const Cart = require("../models/Cart");
 const asyncHandler = require("../middleware/asyncHandler");
@@ -36,6 +36,8 @@ const addToCart = asyncHandler(async (req, res, next) => {
   let totalPrice = 0;
   cart.cartItems.forEach((item) => (totalPrice += item.price * item.quantity));
   cart.totalCartPrice = totalPrice;
+  cart.priceAfterDiscount = undefined;
+
   await cart.save();
   res.status(200).json({ status: "Success", data: cart });
 });
@@ -46,6 +48,8 @@ const getUserCart = asyncHandler(async (req, res, next) => {
   if (!cart) {
     return next(new APIError("No cart for this user", 404));
   }
+  cart.priceAfterDiscount = undefined;
+  await cart.save();
   res.status(200).json({ cartLength: cart.cartItems.length, data: cart });
 });
 
@@ -62,6 +66,7 @@ const removeCartItem = asyncHandler(async (req, res, next) => {
   let totalPrice = 0;
   cart.cartItems.forEach((item) => (totalPrice += item.price * item.quantity));
   cart.totalCartPrice = totalPrice;
+  cart.priceAfterDiscount = undefined;
   await cart.save();
   res.status(200).json({ cartLength: cart.cartItems.length, data: cart });
 });
@@ -92,6 +97,30 @@ const updateCartItemsQuantity = asyncHandler(async (req, res, next) => {
   let totalPrice = 0;
   cart.cartItems.forEach((item) => (totalPrice += item.price * item.quantity));
   cart.totalCartPrice = totalPrice;
+  cart.priceAfterDiscount = undefined;
+  await cart.save();
+  res.status(200).json({ cartLength: cart.cartItems.length, data: cart });
+});
+
+const applyCouponToCart = asyncHandler(async (req, res, next) => {
+  const verifyUser = jwt.verify(req.session.token, process.env.JWT_SECRET);
+  const cart = await Cart.findOne({ user: verifyUser.userId });
+  const coupon = await Coupon.findOne({
+    name: req.body.coupon,
+    expire: { $gt: Date.now() },
+  });
+  if (!cart) {
+    return next(new APIError("No cart for this user", 404));
+  }
+  if (!coupon) {
+    return next(new APIError("Invalid or expired coupon", 404));
+  }
+  const totalPrice = cart.totalCartPrice;
+  const priceAfterDiscount = (
+    totalPrice -
+    (totalPrice * coupon.discount) / 100
+  ).toFixed(1);
+  cart.priceAfterDiscount = priceAfterDiscount;
   await cart.save();
   res.status(200).json({ cartLength: cart.cartItems.length, data: cart });
 });
@@ -102,4 +131,5 @@ module.exports = {
   removeCartItem,
   removeCart,
   updateCartItemsQuantity,
+  applyCouponToCart,
 };
