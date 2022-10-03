@@ -44,7 +44,7 @@ const getUserCart = asyncHandler(async (req, res, next) => {
   const verifyUser = jwt.verify(req.session.token, process.env.JWT_SECRET);
   let cart = await Cart.findOne({ user: verifyUser.userId });
   if (!cart) {
-    return new APIError("No cart for this user", 404);
+    return next(new APIError("No cart for this user", 404));
   }
   res.status(200).json({ cartLength: cart.cartItems.length, data: cart });
 });
@@ -66,4 +66,40 @@ const removeCartItem = asyncHandler(async (req, res, next) => {
   res.status(200).json({ cartLength: cart.cartItems.length, data: cart });
 });
 
-module.exports = { addToCart, getUserCart, removeCartItem };
+const removeCart = asyncHandler(async (req, res, next) => {
+  const verifyUser = jwt.verify(req.session.token, process.env.JWT_SECRET);
+  await Cart.findOneAndDelete({ user: verifyUser.userId });
+  res.status(404).json({ msg: "You don't have cart" });
+});
+
+const updateCartItemsQuantity = asyncHandler(async (req, res, next) => {
+  const { quantity } = req.body;
+  const verifyUser = jwt.verify(req.session.token, process.env.JWT_SECRET);
+  const cart = await Cart.findOne({ user: verifyUser.userId });
+  if (!cart) {
+    return next(new APIError("No cart for this user", 404));
+  }
+  const itemIndex = cart.cartItems.findIndex(
+    (item) => item._id.toString() === req.params.itemId
+  );
+  if (itemIndex > -1) {
+    const cartItem = cart.cartItems[itemIndex];
+    cartItem.quantity = quantity;
+    cart.cartItems[itemIndex] = cartItem;
+  } else {
+    return next(new APIError("Item not found", 404));
+  }
+  let totalPrice = 0;
+  cart.cartItems.forEach((item) => (totalPrice += item.price * item.quantity));
+  cart.totalCartPrice = totalPrice;
+  await cart.save();
+  res.status(200).json({ cartLength: cart.cartItems.length, data: cart });
+});
+
+module.exports = {
+  addToCart,
+  getUserCart,
+  removeCartItem,
+  removeCart,
+  updateCartItemsQuantity,
+};

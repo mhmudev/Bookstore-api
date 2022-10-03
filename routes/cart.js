@@ -2,15 +2,23 @@ const express = require("express");
 const {
   addToCart,
   getUserCart,
+  removeCart,
   removeCartItem,
+  updateCartItemsQuantity,
 } = require("../controllers/cart");
 
 const { protect } = require("../controllers/auth");
 
 const router = express.Router();
 
-router.post("/", protect("user"), addToCart);
-router.get("/", protect("user"), getUserCart);
-router.delete("/:itemId", protect("user"), removeCartItem);
+router
+  .route("/")
+  .post(protect("user"), addToCart)
+  .get(protect("user"), getUserCart)
+  .delete(removeCart);
+router
+  .route("/:itemId")
+  .put(updateCartItemsQuantity)
+  .delete(protect("user"), removeCartItem);
 
 module.exports = router;
