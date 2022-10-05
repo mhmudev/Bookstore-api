@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
 
 app.post(
-  "/webhook",
+  "/webhook-checkout",
   express.raw({ type: "application/json" }),
   webhookCheckout
 );
