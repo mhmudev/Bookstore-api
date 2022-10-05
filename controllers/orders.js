@@ -5,6 +5,7 @@ const APIError = require("../utils/APIError");
 const Order = require("../models/Order");
 const User = require("../models/User");
 const Book = require("../models/Book");
+const APIFeatures = require("../utils/APIFeatures");
 
 const createOrder = asyncHandler(async (req, res, next) => {
   const verifyUser = jwt.verify(req.session.token, process.env.JWT_SECRET);
@@ -40,4 +41,61 @@ const createOrder = asyncHandler(async (req, res, next) => {
   res.status(200).json({ data: order });
 });
 
-module.exports = { createOrder };
+const getOrders = asyncHandler(async (req, res, next) => {
+  const verifyUser = jwt.verify(req.session.token, process.env.JWT_SECRET);
+
+  const numOfDocs = await Order.countDocuments();
+  const apiFeatures = new APIFeatures(
+    req.query,
+    Order.find({ user: verifyUser.userId })
+  );
+  apiFeatures.fields().filter().search("Order").sort().paginate(numOfDocs);
+
+  const { mongooseQuery, paginationResult } = apiFeatures;
+
+  const orders = await mongooseQuery;
+  res.status(200).json({ paginationResult, length: orders.length, orders });
+});
+
+const getOrder = asyncHandler(async (req, res, next) => {
+  const orderId = req.params.id;
+  const order = await Order.findById({ _id: orderId });
+  if (!order) {
+    return next(new APIError(`Order with id doesn't exist`, 404));
+  }
+  res.status(200).json(order);
+});
+
+const updateOrderPayStatus = asyncHandler(async (req, res, next) => {
+  const order = await Order.findById({ _id: req.params.id });
+  if (!order) {
+    return next(
+      new APIError(`Order with id ${req.params.id} doesn't exist`, 404)
+    );
+  }
+  order.isPaid = true;
+  order.paidAt = Date.now();
+  const updatedOrder = await order.save();
+  res.status(200).json(updatedOrder);
+});
+
+const updateOrderDeliverStatus = asyncHandler(async (req, res, next) => {
+  const order = await Order.findById({ _id: req.params.id });
+  if (!order) {
+    return next(
+      new APIError(`Order with id ${req.params.id} doesn't exist`, 404)
+    );
+  }
+  order.isDelivered = true;
+  order.deliveredAt = Date.now();
+  const updatedOrder = await order.save();
+  res.status(200).json(updatedOrder);
+});
+
+module.exports = {
+  createOrder,
+  getOrders,
+  getOrder,
+  updateOrderPayStatus,
+  updateOrderDeliverStatus,
+};
