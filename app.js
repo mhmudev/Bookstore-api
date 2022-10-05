@@ -10,12 +10,20 @@ const errorHandler = require("./middleware/errorHandler");
 const connectToDb = require("./utils/dbConnect");
 const mountRoutes = require("./routes");
 
+const { webhookCheckout } = require("./controllers/orders");
+
 const app = express();
 app.use(cors());
 app.use(compression());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
+
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  webhookCheckout
+);
 
 const MongoStore = require("connect-mongo");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
