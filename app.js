@@ -2,6 +2,8 @@ const express = require("express");
 const path = require("path");
 require("dotenv").config();
 var cookieParser = require("cookie-parser");
+const cors = require("cors");
+const compression = require("compression");
 const session = require("express-session");
 
 const errorHandler = require("./middleware/errorHandler");
@@ -9,6 +11,8 @@ const connectToDb = require("./utils/dbConnect");
 const mountRoutes = require("./routes");
 
 const app = express();
+app.use(cors());
+app.use(compression());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));

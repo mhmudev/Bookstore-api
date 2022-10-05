@@ -1,3 +1,4 @@
+const stripe = require("stripe")(process.env.STRIPE_SECRET);
 const jwt = require("jsonwebtoken");
 const Cart = require("../models/Cart");
 const asyncHandler = require("../middleware/asyncHandler");
@@ -92,10 +93,47 @@ const updateOrderDeliverStatus = asyncHandler(async (req, res, next) => {
   res.status(200).json(updatedOrder);
 });
 
+const checkOutSession = asyncHandler(async (req, res, next) => {
+  const verifyUser = jwt.verify(req.session.token, process.env.JWT_SECRET);
+  const cart = await Cart.findById(req.params.id);
+  const user = await User.findById(verifyUser.userId);
+  const cartId = cart._id;
+  if (!cart) {
+    return next(new APIError("No cart for this user", 404));
+  }
+  const totalPrice = cart.priceAfterDiscount
+    ? cart.priceAfterDiscount
+    : cart.totalCartPrice;
+
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price_data: {
+          unit_amount: totalPrice.toFixed(0) * 100,
+          currency: "egp",
+          product_data: {
+            name: "Your cart costs: ",
+            description: "Checkout now",
+          },
+        },
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    success_url: `${req.protocol}://${req.get("host")}/orders`,
+    cancel_url: `${req.protocol}://${req.get("host")}/cart`,
+    client_reference_id: cartId,
+    customer_email: user.email,
+  });
+
+  res.status(200).json({ session });
+});
+
 module.exports = {
   createOrder,
   getOrders,
   getOrder,
   updateOrderPayStatus,
   updateOrderDeliverStatus,
+  checkOutSession,
 };
