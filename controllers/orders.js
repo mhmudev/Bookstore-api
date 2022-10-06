@@ -136,9 +136,6 @@ const createOnlineOrder = async (session) => {
   const addressIndex = user.addresses.findIndex(
     (address) => address.alias === "Home"
   );
-  if (!cart) {
-    return next(new APIError("No cart for this user", 404));
-  }
 
   const order = await Order.create({
     user: user._id,
