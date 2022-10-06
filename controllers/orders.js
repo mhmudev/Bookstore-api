@@ -128,6 +128,40 @@ const checkOutSession = asyncHandler(async (req, res, next) => {
   res.status(200).json({ session });
 });
 
+const createOnlineOrder = async (session) => {
+  const cartId = session.client_reference_id;
+  const verifyUser = jwt.verify(req.session.token, process.env.JWT_SECRET);
+  const cart = await Cart.findOne({ user: verifyUser.userId });
+  const user = await User.findById(verifyUser.userId);
+  const addressIndex = user.addresses.findIndex(
+    (address) => address.alias === "Home"
+  );
+  if (!cart) {
+    return next(new APIError("No cart for this user", 404));
+  }
+
+  const order = await Order.create({
+    user: verifyUser.userId,
+    cartItems: cart.cartItems,
+    totalOrderPrice: session.amount_total / 100,
+    shippingAddress: user.addresses[addressIndex],
+    isPaid: true,
+    paidAt: Date.now(),
+    paymentMethodType: "card",
+  });
+
+  if (order) {
+    const bulkOption = cart.cartItems.map((item) => ({
+      updateOne: {
+        filter: { _id: item.book },
+        update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+      },
+    }));
+    await Book.bulkWrite(bulkOption, {});
+    await Cart.findByIdAndDelete(cartId);
+  }
+};
+
 const webhookCheckout = asyncHandler(async (req, res, next) => {
   const sig = req.headers["stripe-signature"];
 
@@ -142,10 +176,12 @@ const webhookCheckout = asyncHandler(async (req, res, next) => {
   } catch (err) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
-  console.log(event);
-  if (event.enabled_events === "checkout.session.completed") {
-    console.log(event.enabled_events);
+
+  if (event.type === "checkout.session.completed") {
+    createOnlineOrder(event.data.object);
   }
+
+  res.status(200).json({ received: true });
 });
 
 module.exports = {
