@@ -97,7 +97,6 @@ const checkOutSession = asyncHandler(async (req, res, next) => {
   const verifyUser = jwt.verify(req.session.token, process.env.JWT_SECRET);
   const cart = await Cart.findById(req.params.id);
   const user = await User.findById(verifyUser.userId);
-  const cartId = cart._id;
   if (!cart) {
     return next(new APIError("No cart for this user", 404));
   }
@@ -122,7 +121,7 @@ const checkOutSession = asyncHandler(async (req, res, next) => {
     mode: "payment",
     success_url: `${req.protocol}://${req.get("host")}/orders`,
     cancel_url: `${req.protocol}://${req.get("host")}/cart`,
-    client_reference_id: cartId,
+    client_reference_id: req.params.id,
     customer_email: user.email,
   });
 
