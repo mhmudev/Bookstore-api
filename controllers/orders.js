@@ -130,12 +130,11 @@ const checkOutSession = asyncHandler(async (req, res, next) => {
 
 const webhookCheckout = asyncHandler(async (req, res, next) => {
   const sig = req.headers["stripe-signature"];
-  console.log(event);
 
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(
+    event = await stripe.webhooks.constructEvent(
       req.body,
       sig,
       process.env.ENDPOINT_SECRET
@@ -143,6 +142,7 @@ const webhookCheckout = asyncHandler(async (req, res, next) => {
   } catch (err) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
+  console.log(event);
   if (event.enabled_events === "checkout.session.completed") {
     console.log(event.enabled_events);
   }
