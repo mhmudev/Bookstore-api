@@ -19,11 +19,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
 
-app.post(
-  "/webhook-checkout",
-  express.raw({ type: "application/json" }),
-  webhookCheckout
-);
+app.post("/webhook-checkout", express.raw({ type: "*/*" }), webhookCheckout);
 
 const MongoStore = require("connect-mongo");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
