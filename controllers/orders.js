@@ -134,8 +134,8 @@ const webhookCheckout = asyncHandler(async (req, res, next) => {
   let event;
 
   try {
-    event = await stripe.webhooks.constructEvent(
-      req.rawBody,
+    event = stripe.webhooks.constructEvent(
+      req.body,
       sig,
       process.env.ENDPOINT_SECRET
     );
