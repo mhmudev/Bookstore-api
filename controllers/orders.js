@@ -141,7 +141,7 @@ const createOnlineOrder = async (session) => {
   }
 
   const order = await Order.create({
-    user: verifyUser.userId,
+    user: user._id,
     cartItems: cart.cartItems,
     totalOrderPrice: session.amount_total / 100,
     shippingAddress: user.addresses[addressIndex],
