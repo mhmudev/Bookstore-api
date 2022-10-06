@@ -131,7 +131,7 @@ const checkOutSession = asyncHandler(async (req, res, next) => {
 const createOnlineOrder = async (session) => {
   const cartId = session.client_reference_id;
   const email = session.customer_email;
-  const cart = await Cart.findOne({ user: verifyUser.userId });
+  const cart = await Cart.findById(cartId);
   const user = await User.findOne({ email });
   const addressIndex = user.addresses.findIndex(
     (address) => address.alias === "Home"
